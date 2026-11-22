@@ -14,6 +14,51 @@
 
 처방 시각은 도로 안내표지처럼 파란 판에 표시합니다. 날짜는 `?date=YYYY-MM-DD` 로 바로 열 수 있습니다.
 
+## 화면
+
+2026년 11월 23일에 실제 데이터로 찍은 화면입니다. 실시간 값은 찍은 시각 기준입니다.
+
+### 공연이 있는 날
+
+11월 27일(금) 화면입니다. KSPO DOME 19:00 공연과 올림픽홀 20:00 공연 때문에 18:00~21:30이 매우 붐빌 것으로 예측합니다. 처방은 지하철 이용과 22:20 이후 출차입니다.
+
+![11월 27일 공연일 데스크톱 화면](docs/screenshots/desktop-concert-day.png)
+
+### 공연이 없는 날과 모바일
+
+<table>
+  <tr>
+    <th>공연이 없는 평일(11월 23일), 공원 방문 처방</th>
+    <th>모바일 첫 화면(11월 28일 공연일)</th>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/desktop-today.png" alt="공연이 없는 평일의 데스크톱 화면" width="560"></td>
+    <td><img src="docs/screenshots/mobile-concert-day-top.png" alt="11월 28일 공연일 모바일 첫 화면" width="260"></td>
+  </tr>
+</table>
+
+### 다듬기 전과 후
+
+첫 구현을 unslop 방식으로 다듬었습니다.
+
+- 글자 굵기와 크기 종류를 줄이고 간격을 4px 격자에 맞췄습니다.
+- 날짜 띠는 매일 반복되는 혼잡을 회색 "평소 수준"으로 묶고, 공연이 있는 날만 색으로 드러냈습니다.
+- 예측 차트를 진단 카드 안으로 옮겨 화면의 중심에 두었습니다.
+- 처방 시각은 도로 안내표지 판으로 표시합니다.
+
+<table>
+  <tr>
+    <th>다듬기 전</th>
+    <th>다듬은 뒤</th>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/before-unslop-desktop.png" alt="다듬기 전 화면" width="420"></td>
+    <td><img src="docs/screenshots/desktop-concert-day.png" alt="다듬은 뒤 화면" width="420"></td>
+  </tr>
+</table>
+
+모바일 전체 화면과 다시 찍는 방법은 [docs/README.md](docs/README.md)에 있습니다.
+
 ## 사용 데이터
 
 | 기관 | 데이터 | 용도 | 키 |
@@ -53,6 +98,7 @@ app/
   shared/            서버와 화면이 함께 쓰는 타입
 analysis/            모델 학습 스크립트(Python)
 data/derived/        학습에 쓴 가공 데이터
+docs/                화면 캡처
 contest_analysis.md  공모전 요강과 개방 데이터 분석
 item_gilmak_doctor.md 아이템 데이터 검증과 계획
 ```
