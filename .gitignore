@@ -1,0 +1,22 @@
+# 비밀 값: 키는 .env 에만 두고 커밋하지 않는다
+.env
+.env.*
+!.env.example
+
+# 의존성·빌드 결과
+node_modules/
+app/dist/
+
+# 실행 중 생기는 데이터(실시간 수집 기록, API 캐시)
+app/data/
+
+# 내려받은 원본 데이터(용량이 크고 공공데이터포털에서 다시 받을 수 있다)
+data/raw/
+
+# 외부 기관 참고 문서(재배포하지 않는다)
+/*.pdf
+
+# 기타
+__pycache__/
+*.log
+.DS_Store
