@@ -2,13 +2,13 @@ import type { LiveResponse } from '../../shared/types.ts';
 import { clock, km, num, shortStamp, toMinutes } from '../format.ts';
 import { Card, Icon, Tag, populationTone, roadTone } from './ui.tsx';
 
-/** 오늘 모은 기록 중 1시간 전에 가장 가까운 값과 비교한다(최소 25분 전). */
+/** 오늘 모은 기록 중 1시간 전에 가장 가까운 값과 비교한다(25~120분 전 기록만, 없으면 표시하지 않음). */
 function parkingDelta(today: { at: string; sum: number }[], now: { at: string; sum: number }): string | null {
   const nowMin = toMinutes(clock(now.at));
   let best: { sum: number; ago: number } | null = null;
   for (const r of today) {
     const ago = nowMin - toMinutes(clock(r.at));
-    if (ago < 25) continue;
+    if (ago < 25 || ago > 120) continue;
     if (!best || Math.abs(ago - 60) < Math.abs(best.ago - 60)) best = { sum: r.sum, ago };
   }
   if (!best) return null;

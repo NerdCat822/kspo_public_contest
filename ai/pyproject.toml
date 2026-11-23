@@ -1,0 +1,21 @@
+[project]
+name = "gilmak-ai"
+version = "0.1.0"
+description = "길막닥터 AI 서비스: 주차 혼잡 예측 모델(ML)과 상담 에이전트"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=2.12",
+    "fastapi>=0.115",
+    "httpx2>=2.0",
+    "uvicorn>=0.30",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

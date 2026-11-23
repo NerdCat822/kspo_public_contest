@@ -17,13 +17,13 @@
 
 ## 다시 찍는 방법
 
-개발 서버를 띄운 상태(`cd app && npm run dev`)에서 헤드리스 Chrome으로 찍습니다. 날짜는 `?date=YYYY-MM-DD` 로 고릅니다.
+AI 서비스, 백엔드, 화면 개발 서버를 띄운 상태(실행 방법은 루트 README)에서 헤드리스 Chrome으로 찍습니다. 네이버 지도는 등록된 도메인에서만 뜨므로 `127.0.0.1` 이 아니라 `localhost` 로 엽니다. 날짜는 `?date=YYYY-MM-DD` 로 고릅니다.
 
 ```bash
 google-chrome --headless=new --hide-scrollbars --force-device-scale-factor=2 \
   --window-size=1440,2500 --virtual-time-budget=20000 \
   --screenshot=docs/screenshots/desktop-concert-day.png \
-  "http://127.0.0.1:5173/?date=2026-11-27"
+  "http://localhost:5173/?date=2026-11-27"
 ```
 
 창 높이를 페이지보다 넉넉하게 잡아야 아래가 잘리지 않습니다. 남는 빈 영역은 이미지 편집기로 잘라 냅니다.

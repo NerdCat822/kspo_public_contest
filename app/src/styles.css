@@ -206,7 +206,8 @@ button {
   align-items: start;
 }
 .layout__main,
-.layout__side {
+.layout__side,
+.layout__live {
   display: grid;
   gap: 24px;
   min-width: 0;
@@ -972,6 +973,206 @@ button {
   background: var(--surface);
 }
 
+/* 네이버 지도 */
+.nmap {
+  height: 380px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--page);
+}
+.nmap-lot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font: 600 11px/1 var(--font);
+  box-shadow: 0 0 0 2px #fff;
+}
+.nmap-station {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--ink);
+}
+.nmap-control {
+  display: block;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--status-warning);
+  filter: drop-shadow(0 0 1px var(--ink));
+}
+
+/* ── 물어보기 ─────────────────────────── */
+.chat {
+  display: flex;
+  flex-direction: column;
+  /* 첫 화면에서 입력창까지 보이게: 머리말과 날짜 띠(약 230px), 아래 여백을 뺀 높이 */
+  max-height: max(440px, calc(100vh - 256px));
+  scroll-margin-top: 16px; /* '물어보기' 바로가기로 왔을 때 화면 위에 붙지 않게 */
+}
+.chat__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  border-top: 1px solid transparent;
+  transition: border-color 150ms var(--ease);
+}
+/* 안쪽이 스크롤되면 잘린 윗줄이 머리말 아래로 들어가는 것처럼 보이게 선을 긋는다 */
+.chat__scroll.is-scrolled {
+  border-top-color: var(--line);
+}
+.chat__intro {
+  display: grid;
+  gap: 12px;
+}
+.chat__suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease);
+}
+.chip:hover:not(:disabled) {
+  background: var(--raised);
+}
+.chip:disabled {
+  color: var(--ink-3);
+  cursor: default;
+}
+.chat__list {
+  display: grid;
+  gap: 16px;
+}
+.chat__turn {
+  display: grid;
+  gap: 4px;
+}
+.chat__turn--user {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--page);
+}
+.chat__who {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.chat__text {
+  font-size: 15px;
+  display: grid;
+  gap: 8px;
+}
+.chat__text ul {
+  display: grid;
+  gap: 4px;
+  padding-left: 20px;
+  list-style: disc;
+}
+.chat__activity {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.chat__meta {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.chat__form {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.chat__input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--surface);
+}
+.chat__input:disabled {
+  background: var(--page);
+}
+.btn-primary {
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+.btn-primary:hover:not(:disabled) {
+  background: #0c3f82;
+}
+.btn-primary:disabled {
+  background: var(--line-2);
+  color: var(--ink-3);
+  cursor: default;
+}
+.btn-secondary {
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+.btn-secondary:hover {
+  background: var(--raised);
+}
+
+/* 상담 창이 화면 밖에 있을 때 띄우는 바로가기 */
+.chat-jump {
+  position: fixed;
+  right: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 20;
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(22, 23, 26, 0.18);
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+.chat-jump:hover {
+  background: #0c3f82;
+}
+
 /* ── 공사·통제 ─────────────────────────── */
 .controls__list li {
   display: grid;
@@ -1039,6 +1240,9 @@ button {
   .layout {
     grid-template-columns: minmax(0, 1fr);
   }
+  .chat {
+    max-height: min(640px, calc(100vh - 32px));
+  }
 }
 @media (max-width: 640px) {
   .masthead__inner,
@@ -1058,8 +1262,13 @@ button {
   }
   .layout,
   .layout__main,
-  .layout__side {
+  .layout__side,
+  .layout__live {
     gap: 16px;
+  }
+  .chat-jump {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
   }
   .layout {
     margin-top: 16px;

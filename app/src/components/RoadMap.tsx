@@ -12,7 +12,7 @@ const ORDER: Record<string, number> = { good: 0, warning: 1, critical: 2 };
  * 서울시 실시간 도시데이터의 도로 구간 좌표로 그린 소통 지도.
  * 배경 지도 없이 도로·주차장·역만 그린다(지도 API 키 불필요).
  */
-export function RoadMap({ live }: { live: LiveResponse | null }) {
+export function RoadMap({ live, note }: { live: LiveResponse | null; note?: string | null }) {
   const road = live?.road;
   const [boxRef, W] = useWidth<HTMLElement>(440);
   const geo = useMemo(() => {
@@ -158,6 +158,7 @@ export function RoadMap({ live }: { live: LiveResponse | null }) {
               지하철역
             </li>
           </ul>
+          {note && <p className="caption">{note}</p>}
         </figcaption>
       </figure>
     </Card>

@@ -4,7 +4,11 @@
     python3 analysis/build_baseline.py \
         data/raw/kspo_inout_2024_07/inout_2024_07.csv \
         data/derived/kopis_events_2024_07.json \
-        app/server/model/baseline.json
+        ai/models/baseline-v0.json
+    cp ai/models/baseline-v0.json backend/internal/model/baseline.json
+
+결과는 Python AI 서비스(ai/, 예측 API)가 쓰고, 같은 파일을 Go 백엔드에도 복사한다
+(AI 서비스가 꺼졌을 때 Go 가 내장 모델로 대신 계산한다. ai/tests 가 두 파일이 같은지 확인한다).
 
 방법
 1. 분 단위 동시 주차대수(입차 - 출차 누적)를 구하고 30분 구간 평균으로 만든다.

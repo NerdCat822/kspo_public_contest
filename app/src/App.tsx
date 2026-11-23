@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import type { LiveResponse, OverviewDay } from '../shared/types.ts';
+import type { ConfigResponse, LiveResponse, OverviewDay } from '../shared/types.ts';
 import { type DayData, api } from './api.ts';
+import { AskDoctor } from './components/AskDoctor.tsx';
 import { DateStrip } from './components/DateStrip.tsx';
 import { Diagnosis } from './components/Diagnosis.tsx';
 import { Controls, LiveNow, Lots } from './components/LiveNow.tsx';
 import { type Purpose, Prescription } from './components/Prescription.tsx';
-import { RoadMap } from './components/RoadMap.tsx';
+import { NaverRoadMap } from './components/NaverRoadMap.tsx';
 import { clock } from './format.ts';
 
 const LIVE_REFRESH_MS = 60_000;
@@ -25,8 +26,16 @@ export default function App() {
   const [purpose, setPurpose] = useState<Purpose>('concert');
   const [showId, setShowId] = useState<string | null>(null);
   const [fatal, setFatal] = useState<string | null>(null);
+  const [config, setConfig] = useState<ConfigResponse | null>(null);
 
   const today = days?.[0]?.date ?? null;
+
+  useEffect(() => {
+    api
+      .config()
+      .then(setConfig)
+      .catch(() => setConfig({ naverMapClientId: null }));
+  }, []);
 
   useEffect(() => {
     api
@@ -121,12 +130,15 @@ export default function App() {
               onShow={setShowId}
             />
           </div>
-          <aside className="layout__side" aria-label="실시간 현황">
-            <LiveNow live={live} />
-            <RoadMap live={live} />
-            <Controls live={live} />
-            <Lots live={live} />
-          </aside>
+          <div className="layout__side">
+            <AskDoctor day={day} date={date} />
+            <aside className="layout__live" aria-label="실시간 현황">
+              <LiveNow live={live} />
+              <NaverRoadMap live={live} clientId={config ? config.naverMapClientId : undefined} />
+              <Controls live={live} />
+              <Lots live={live} />
+            </aside>
+          </div>
         </div>
       </main>
 
@@ -139,6 +151,7 @@ export default function App() {
             <li>서울특별시 · 실시간 도시데이터, 실시간 돌발정보</li>
             <li>출처: 기상청 · 단기예보</li>
             <li>한국천문연구원 · 특일정보</li>
+            <li>네이버 클라우드 플랫폼 · 배경 지도</li>
           </ul>
           <p className="footer__note">
             예측은 2024년 7월 실측으로 만든 초기 모델이라 실제와 다를 수 있어요. 공연마다 다른 관객의 차량 이용률은 아직 반영하지 못했고, 2025년

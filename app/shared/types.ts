@@ -1,4 +1,4 @@
-// 서버와 화면이 함께 쓰는 데이터 계약
+// 화면이 받는 API 응답 형태. Go 백엔드의 backend/internal/types/types.go 와 같아야 한다(바꾸면 양쪽을 함께 바꾼다).
 
 /** 혼잡 단계. 서울시 실시간 도시데이터의 인구 혼잡 용어(여유·보통·약간 붐빔·붐빔)와 맞췄다. */
 export type Level = 'calm' | 'normal' | 'busy' | 'jam';
@@ -85,7 +85,48 @@ export interface DayResponse {
   };
   advice: { concert: ConcertAdvice[]; park: ParkAdvice };
   weather: DayWeather | null;
-  model: { version: string; fitMaeCars: number | null; exitMinutes: number; note: string };
+  model: {
+    version: string;
+    fitMaeCars: number | null;
+    exitMinutes: number;
+    note: string;
+    /** ml-service(Python AI 서비스) | embedded(Go 내장 모델) */
+    source: string;
+  };
+}
+
+/** 화면이 시작할 때 받는 공개 설정 */
+export interface ConfigResponse {
+  naverMapClientId: string | null;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AgentStatus {
+  enabled: boolean;
+  model: string;
+}
+
+/** 에이전트가 확인한 데이터(도구 호출, 또는 질문과 함께 미리 읽은 것) */
+export interface ToolCall {
+  name: string;
+  input: Record<string, unknown>;
+}
+
+/** /api/agent/chat/stream 의 마지막 done 이벤트 */
+export interface AgentDone {
+  toolCalls: ToolCall[];
+  prefetched: ToolCall[];
+  stopReason: string | null;
+  model: string;
+}
+
+/** /api/agent/chat (한 번에 받는 답) */
+export interface AgentReply extends AgentDone {
+  reply: string;
 }
 
 export interface OverviewDay {
