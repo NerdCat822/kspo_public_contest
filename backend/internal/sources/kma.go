@@ -103,14 +103,7 @@ func (c *Client) DayWeather(date string) (*types.DayWeather, error) {
 	if pops := floats(by["POP"]); len(pops) > 0 {
 		w.RainChance = types.Ptr(maxOf(pops))
 	}
-	for _, it := range by["PTY"] {
-		if it.FcstValue != "0" {
-			if name, ok := ptyNames[it.FcstValue]; ok {
-				w.PrecipType = types.Ptr(name)
-			}
-			break
-		}
-	}
+	w.PrecipType, w.PrecipFrom, w.PrecipTo = precipWindow(by["PTY"])
 	// 낮 시간(09~21시) 하늘 상태 중 가장 흔한 값
 	counts := map[string]int{}
 	for _, it := range by["SKY"] {
@@ -131,6 +124,31 @@ func (c *Client) DayWeather(date string) (*types.DayWeather, error) {
 		}
 	}
 	return w, nil
+}
+
+// precipWindow 는 강수 형태(PTY) 예보에서 가장 이른 강수의 종류와, 강수가 예보된 시간대를 뽑는다.
+// 시간대는 첫 시각 ~ 마지막 시각의 한 시간 뒤(시간 단위 예보라서)이고, 중간에 그치는 때가 있어도 하나로 묶는다.
+func precipWindow(pty []kmaItem) (kind, from, to *string) {
+	first, last, code := "", "", ""
+	for _, it := range pty {
+		if it.FcstValue == "0" || len(it.FcstTime) != 4 {
+			continue
+		}
+		if first == "" || it.FcstTime < first {
+			first, code = it.FcstTime, it.FcstValue
+		}
+		if it.FcstTime > last {
+			last = it.FcstTime
+		}
+	}
+	if first == "" {
+		return nil, nil, nil
+	}
+	if name, ok := ptyNames[code]; ok {
+		kind = types.Ptr(name)
+	}
+	endHour, _ := strconv.Atoi(last[:2])
+	return kind, types.Ptr(first[:2] + ":" + first[2:]), types.Ptr(fmt.Sprintf("%02d:00", endHour+1))
 }
 
 func floats(items []kmaItem) []float64 {

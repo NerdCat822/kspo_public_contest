@@ -4,6 +4,7 @@ package config
 
 import (
 	"bufio"
+	"net"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -22,7 +23,9 @@ type Config struct {
 	NaverMapClientSecret string
 	// AIServiceURL 은 Python AI 서비스(ai/). 예측(/ml/forecast)과 상담(/agent/*)을 맡는다.
 	AIServiceURL string
-	// DataDir 아래에 cache(외부 API 캐시)와 runtime(실시간 수집 기록)이 쌓인다.
+	// DatabaseURL 이 있으면 실시간 수집 기록과 외부 API 캐시를 PostgreSQL(스키마 gilmak)에 남긴다.
+	DatabaseURL string
+	// DataDir 은 DatabaseURL 이 없을 때 cache(외부 API 캐시)와 runtime(실시간 수집 기록)이 쌓이는 곳이다.
 	DataDir string
 	// Addr 는 서버가 듣는 주소. PORT 가 있으면 ":PORT"(클라우드 배포용).
 	Addr string
@@ -80,11 +83,30 @@ func Load() Config {
 		NaverMapClientID:     get("NAVER_CLOUD_PLATFORM_CLIENT_ID"),
 		NaverMapClientSecret: get("NAVER_CLOUD_PLATFORM_CLIENT_SECRET"),
 		AIServiceURL:         aiURL,
+		DatabaseURL:          withHost(get("DATABASE_URL"), get("DATABASE_HOST")),
 		DataDir:              dataDir,
 		Addr:                 addr,
 		StaticDir:            get("STATIC_DIR"),
 		Collect:              get("GILMAK_COLLECT") != "0",
 	}
+}
+
+// withHost 는 host 가 있으면 DB 주소의 호스트만 바꾼다. .env 의 DATABASE_URL 은 이 PC 에서 쓰는
+// 127.0.0.1 을 가리키고, 컨테이너 안에서는 DATABASE_HOST=postgres-db(공용 DB 컨테이너)로 붙는다.
+func withHost(dsn, host string) string {
+	if dsn == "" || host == "" {
+		return dsn
+	}
+	u, err := url.Parse(dsn)
+	if err != nil {
+		return dsn
+	}
+	if port := u.Port(); port != "" {
+		u.Host = net.JoinHostPort(host, port)
+	} else {
+		u.Host = host
+	}
+	return u.String()
 }
 
 func readDotEnv(path string, into map[string]string) {

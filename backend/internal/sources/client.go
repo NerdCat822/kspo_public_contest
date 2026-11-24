@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -24,10 +23,11 @@ type Client struct {
 	http  *httpx.Client
 }
 
-func New(cfg config.Config) *Client {
+// New 는 persist 캐시를 store 에 남긴다(파일: cache.Dir, PostgreSQL: store.DB.Cache).
+func New(cfg config.Config, store cache.Store) *Client {
 	return &Client{
 		cfg:   cfg,
-		cache: cache.New(filepath.Join(cfg.DataDir, "cache")),
+		cache: cache.New(store),
 		http:  httpx.New(cfg.Secrets()),
 	}
 }

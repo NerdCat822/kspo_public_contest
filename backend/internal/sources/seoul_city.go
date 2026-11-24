@@ -22,6 +22,8 @@ type CityData struct {
 	Lots       []types.ParkingLot `json:"lots"`
 	Stations   []types.Station    `json:"stations"`
 	Controls   []types.Control    `json:"controls"`
+	Alerts     []types.Notice     `json:"alerts"`
+	News       []types.Notice     `json:"news"`
 }
 
 // CityData 는 5분마다 갱신되는 서울시 실시간 도시데이터를 올림픽공원 기준으로 정리한다.
@@ -149,6 +151,42 @@ func normalizeCity(c map[string]any) CityData {
 			ctl.Lat, ctl.Lng = types.Ptr(lat), types.Ptr(lng)
 		}
 		out.Controls = append(out.Controls, ctl)
+	}
+
+	out.Alerts = notices(c["LIVE_DST_MESSAGE"])
+	out.News = notices(c["LIVE_YNA_NEWS"])
+	return out
+}
+
+// 긴급재난문자·연합뉴스는 최근 것 몇 건만, 내용은 앞부분만 넘긴다(상담 에이전트에 넣는 글자 수를 줄이려고).
+const maxNotices, maxNoticeRunes = 5, 400
+
+// notices 는 긴급재난문자(LIVE_DST_MESSAGE)·연합뉴스(LIVE_YNA_NEWS)를 받은 항목 이름 그대로 옮긴다.
+// 한 건일 때는 목록이 아니라 객체 하나로 올 수 있다.
+func notices(v any) []types.Notice {
+	items := arr(v)
+	if m := obj(v); m != nil {
+		items = []any{m}
+	}
+	out := []types.Notice{}
+	for _, it := range items {
+		n := types.Notice{}
+		for k, val := range obj(it) {
+			s := strings.Join(strings.Fields(str(val)), " ")
+			if s == "" {
+				continue
+			}
+			if r := []rune(s); len(r) > maxNoticeRunes {
+				s = string(r[:maxNoticeRunes]) + "…"
+			}
+			n[k] = s
+		}
+		if len(n) > 0 {
+			out = append(out, n)
+		}
+		if len(out) == maxNotices {
+			break
+		}
 	}
 	return out
 }

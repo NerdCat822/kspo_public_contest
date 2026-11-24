@@ -28,6 +28,7 @@ type Server struct {
 	collector *collector.Collector
 	ml        *ml.Client
 	agent     http.Handler
+	usual     usualCache // "평소 이 시각" 주차대수(usual.go)
 }
 
 func New(cfg config.Config, src *sources.Client, col *collector.Collector) *Server {
@@ -48,9 +49,14 @@ func (s *Server) Register(r gin.IRouter) {
 }
 
 func (s *Server) health(c *gin.Context) {
+	storage := "files"
+	if s.cfg.DatabaseURL != "" {
+		storage = "postgres"
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"ok": true,
-		"at": kst.Stamp(kst.Now()),
+		"ok":      true,
+		"at":      kst.Stamp(kst.Now()),
+		"storage": storage, // 수집 기록·API 캐시를 남기는 곳
 		"keys": gin.H{
 			"kopis": s.cfg.KopisKey != "", "seoul": s.cfg.SeoulKey != "",
 			"dataGoKr": s.cfg.DataGoKrKey != "", "culture": s.cfg.CultureKey != "",
@@ -203,6 +209,7 @@ func (s *Server) live(c *gin.Context) {
 	out := types.LiveResponse{
 		FetchedAt: kst.Stamp(kst.Now()),
 		Lots:      []types.ParkingLot{}, Stations: []types.Station{}, Controls: []types.Control{},
+		Alerts: []types.Notice{}, News: []types.Notice{},
 		Errors: map[string]string{},
 	}
 	if pErr != nil {
@@ -214,13 +221,14 @@ func (s *Server) live(c *gin.Context) {
 				today = append(today, types.ParkingPoint{At: r.At, Sum: *r.Parking})
 			}
 		}
-		out.Parking = &types.Parking{Sum: parking.Sum, At: parking.At, Today: today}
+		out.Parking = &types.Parking{Sum: parking.Sum, At: parking.At, Today: today, Usual: s.usualParking()}
 	}
 	if cErr != nil {
 		out.Errors["city"] = cErr.Error()
 	} else {
 		out.Population, out.Road, out.Weather = city.Population, city.Road, city.Weather
 		out.Lots, out.Stations = city.Lots, city.Stations
+		out.Alerts, out.News = city.Alerts, city.News
 		out.Controls = append(out.Controls, city.Controls...)
 	}
 	if aErr != nil {

@@ -81,13 +81,17 @@ type ParkAdvice struct {
 	Avoid []AvoidWindow `json:"avoid"`
 }
 
+// DayWeather 는 그날의 예보 요약이다(지금 날씨가 아니다. 지금 날씨는 LiveResponse.Weather).
 type DayWeather struct {
 	Sky        *string  `json:"sky"`
 	MinTemp    *float64 `json:"minTemp"`
 	MaxTemp    *float64 `json:"maxTemp"`
 	RainChance *float64 `json:"rainChance"`
 	PrecipType *string  `json:"precipType"`
-	Source     string   `json:"source"`
+	// PrecipFrom~PrecipTo 는 비·눈이 예보된 시간대(HH:MM, 끝은 마지막 예보 시각의 한 시간 뒤라 24:00 일 수 있다)
+	PrecipFrom *string `json:"precipFrom"`
+	PrecipTo   *string `json:"precipTo"`
+	Source     string  `json:"source"`
 }
 
 type Peak struct {
@@ -113,10 +117,17 @@ type Advice struct {
 }
 
 type ModelMeta struct {
-	Version     string   `json:"version"`
+	Version string `json:"version"`
+	// Period 는 학습에 쓴 실측 기간(화면 문구용, 예: 2025년)
+	Period string `json:"period"`
+	// FitMaeCars 는 학습 기간 공연일 평균 오차(대), TestMaeCars 는 학습에 쓰지 않은 기간(TestLabel) 공연일 평균 오차(대)
 	FitMaeCars  *float64 `json:"fitMaeCars"`
+	TestMaeCars *float64 `json:"testMaeCars"`
+	TestLabel   *string  `json:"testLabel"`
 	ExitMinutes int      `json:"exitMinutes"`
-	Note        string   `json:"note"`
+	// ExitShows 는 출차 소요시간(ExitMinutes)을 잰 KSPO DOME 공연 회차 수
+	ExitShows int    `json:"exitShows"`
+	Note      string `json:"note"`
 	// Source 는 예측을 계산한 곳: ml-service(Python AI 서비스) | embedded(Go 내장 모델, AI 서비스가 꺼졌을 때)
 	Source string `json:"source"`
 }
@@ -188,6 +199,16 @@ type Parking struct {
 	Sum   int            `json:"sum"`
 	At    string         `json:"at"`
 	Today []ParkingPoint `json:"today"`
+	// Usual 은 "평소 이 시각" 기준. 비교할 날이 모자라면 nil.
+	Usual *ParkingUsual `json:"usual"`
+}
+
+// ParkingUsual 은 직접 모은 실시간 기록으로 낸 "평소 이 시각" 주차대수다.
+// 대형 공연이 없던 같은 유형의 날(평일끼리, 주말·공휴일끼리)에 같은 시각 값의 평균.
+type ParkingUsual struct {
+	Sum     int     `json:"sum"`
+	Days    int     `json:"days"`    // 평균에 쓴 날 수
+	DayType DayType `json:"dayType"` // weekday | weekend(공휴일 포함)
 }
 
 type PopulationForecast struct {
@@ -259,16 +280,24 @@ type Control struct {
 	Lng       *float64 `json:"lng"`
 }
 
+// Notice 는 서울시 실시간 도시데이터의 긴급재난문자나 연합뉴스 한 건이다(출처: 행정안전부 재난안전데이터공유플랫폼, 5분 갱신).
+// 공개 명세에 세부 항목 이름이 없어서, 받은 항목 이름과 값을 그대로 둔다(빈 값은 뺀다).
+type Notice map[string]string
+
 type LiveResponse struct {
-	FetchedAt  string            `json:"fetchedAt"`
-	Parking    *Parking          `json:"parking"`
-	Population *Population       `json:"population"`
-	Road       *Road             `json:"road"`
-	Weather    *Weather          `json:"weather"`
-	Lots       []ParkingLot      `json:"lots"`
-	Stations   []Station         `json:"stations"`
-	Controls   []Control         `json:"controls"`
-	Errors     map[string]string `json:"errors"`
+	FetchedAt  string       `json:"fetchedAt"`
+	Parking    *Parking     `json:"parking"`
+	Population *Population  `json:"population"`
+	Road       *Road        `json:"road"`
+	Weather    *Weather     `json:"weather"`
+	Lots       []ParkingLot `json:"lots"`
+	Stations   []Station    `json:"stations"`
+	Controls   []Control    `json:"controls"`
+	// Alerts·News 는 올림픽공원 지역의 긴급재난문자와 연합뉴스(재난 관련). 화면은 쓰지 않고 상담 에이전트가 읽는다.
+	// 마라톤·행사 교통통제나 집회 관련 안전안내문자가 오면 여기에 실린다.
+	Alerts []Notice          `json:"alerts"`
+	News   []Notice          `json:"news"`
+	Errors map[string]string `json:"errors"`
 }
 
 // Ptr 는 값의 포인터(널 허용 필드용)

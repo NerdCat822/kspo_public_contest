@@ -1,0 +1,56 @@
+# 길막닥터를 이 서버의 공용 인프라에 붙여 띄운다. 둘 다 Docker 네트워크 shared-network 에 있다.
+#   - nginx 게이트웨이(nginx-gateway): https://hgkim-mini-pc.taild27e83.ts.net/gilmak-doctor/ 로 들어온 요청을
+#     하위 경로를 떼고 app 컨테이너(:8080)에 넘긴다 (../nginx_tailscale/nginx.conf).
+#     Tailscale Funnel 이 바깥 443 을 게이트웨이 80 으로 잇는다.
+#   - 공용 PostgreSQL(postgres-db): 전용 계정·DB gilmak_doctor, 스키마 gilmak. 새 DB 컨테이너는 띄우지 않는다.
+#     표는 app 이 뜰 때 backend/internal/store/schema.sql 로 맞춘다.
+#
+#   docker compose up -d --build      시작·갱신
+#   docker compose logs -f app        로그 보기 (5분마다 [collector] 줄이 찍힌다)
+#   docker compose down               내리기 (수집 기록은 postgres-db 에 그대로 남는다)
+#
+# 환경변수는 저장소 루트 .env 하나를 쓴다. 이 PC 에서 직접 돌리는 명령(go run, uv run)과 같은 파일이다.
+# DATABASE_URL 은 127.0.0.1:5432 를 가리키고, 컨테이너 안에서는 DATABASE_HOST 로 호스트만 postgres-db 로 바꾼다.
+name: gilmak-doctor
+
+x-env: &env
+  env_file:
+    - path: .env
+      required: true
+
+services:
+  # Go API 서버 + 화면. 실시간 수집기(5분마다)도 여기서 돈다.
+  app:
+    <<: *env
+    build: .
+    image: gilmak-doctor:latest
+    container_name: gilmak-doctor-app
+    environment:
+      DATABASE_HOST: postgres-db # 공용 PostgreSQL 의 컨테이너 이름 (.env 의 127.0.0.1 대신)
+      AI_SERVICE_URL: http://gilmak-doctor-ai:8090
+    # 밖으로는 열지 않는다. 게이트웨이가 shared-network 안에서 gilmak-doctor-app:8080 으로 붙는다.
+    # 서버 안에서 직접 확인할 때: http://127.0.0.1:8096/
+    ports:
+      - "127.0.0.1:8096:8080"
+    networks:
+      - default
+      - shared-network
+    depends_on:
+      - ai # AI 서비스가 없어도 예측은 내장 모델로 동작한다(상담만 꺼짐)
+    restart: unless-stopped # 서버가 다시 켜져도 바깥 주소가 살아 있게
+
+  # Python AI 서비스(예측 모델, 상담 에이전트). app 만 부르므로 shared-network 에는 붙이지 않는다.
+  ai:
+    <<: *env
+    build: ./ai
+    image: gilmak-doctor-ai:latest
+    container_name: gilmak-doctor-ai
+    environment:
+      GILMAK_API_URL: http://gilmak-doctor-app:8080 # 상담 에이전트 도구가 부르는 Go API
+    networks:
+      - default
+    restart: unless-stopped
+
+networks:
+  shared-network:
+    external: true

@@ -1,11 +1,11 @@
-"""v0 예측 모델 (analysis/build_baseline.py 가 만든 기준선 사용).
+"""기준선 예측 모델. 모델 파일 형식은 v0(2024년 7월)과 v1(2025년)이 같고, 서비스는 v1 을 쓴다.
 
     수요(t) = 요일 유형별 기준선(t) + Σ 공연별 (좌석/1000) × 공연 영향 곡선(t - 시작)
 
-단계는 2024년 7월 08~23시 구간 분포의 50/80/95 분위로 나눈다.
+v1 은 analysis/build_model_v1.py, v0 은 analysis/build_baseline.py 가 만든다.
+단계는 학습 기간 08~23시 구간 분포의 50/80/95 분위로 나눈다.
 Go 백엔드(backend/internal/model)의 내장 모델과 같은 계산을 한다. Go 는 이 서비스가 꺼져 있을 때
 내장 모델로 대신 계산하므로, 둘의 결과가 같아야 한다(tests/test_model_v0.py 가 확인).
-2025년 연계 데이터로 다시 학습하면 이 모듈 옆에 새 모델을 두고 /ml/forecast 가 그것을 쓰게 한다.
 """
 
 from __future__ import annotations
@@ -56,6 +56,7 @@ class BaselineModel:
         th = data["thresholds"]
         self.p50, self.p80, self.p95 = th["p50"], th["p80"], th["p95"]
         self.exit_minutes: int = data["exitSurge"].get("medianMinutesTo80pct") or 70
+        self.exit_shows: int = data["exitSurge"].get("showsUsed") or len(data["exitSurge"].get("shows") or [])
 
     @property
     def bins(self) -> int:
@@ -67,9 +68,13 @@ class BaselineModel:
     def meta(self) -> dict[str, Any]:
         return {
             "version": self.meta_raw["version"],
+            "period": self.meta_raw.get("period", ""),
             "fitMaeCars": self.meta_raw.get("fitMaeCars"),
+            "testMaeCars": self.meta_raw.get("testMaeCars"),
+            "testLabel": self.meta_raw.get("testLabel"),
             "exitMinutes": self.exit_minutes,
-            "note": "2024년 7월 동2·남2·북2문 입출차와 KOPIS 공연 일정으로 만든 초기 모델입니다. 2025년 연계 데이터로 다시 학습할 예정입니다.",
+            "exitShows": self.exit_shows,
+            "note": self.meta_raw.get("note", ""),
         }
 
     def level_of(self, cars: float) -> str:

@@ -218,8 +218,10 @@ export function ForecastChart({ day, isToday }: { day: DayData; isToday: boolean
       )}
 
       <p className="forecast__note">
-        2024년 7월 동2·남2·북2문 실측 대비 상대값이고, 가로선은 단계가 바뀌는 기준이에요. 예측 모델 {day.model.version}
-        {day.model.fitMaeCars != null && `, 학습 기간 공연일 평균 오차 ±${num(Math.round(day.model.fitMaeCars))}대`}
+        {day.model.period} 동2·남2·북2문 실측 대비 상대값이고, 가로선은 단계가 바뀌는 기준이에요. 예측 모델 {day.model.version}
+        {day.model.testMaeCars != null && day.model.testLabel
+          ? `, 학습에 쓰지 않은 ${day.model.testLabel} 공연일 평균 오차 ±${num(Math.round(day.model.testMaeCars))}대`
+          : day.model.fitMaeCars != null && `, 학습 기간 공연일 평균 오차 ±${num(Math.round(day.model.fitMaeCars))}대`}
       </p>
     </div>
   );

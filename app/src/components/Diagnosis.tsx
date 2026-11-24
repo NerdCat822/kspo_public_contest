@@ -1,4 +1,4 @@
-import type { ForecastBin, Level } from '../../shared/types.ts';
+import type { DayWeather, ForecastBin, Level } from '../../shared/types.ts';
 import { LEVEL_LABEL } from '../../shared/types.ts';
 import type { DayData } from '../api.ts';
 import { dateLong, num, toMinutes } from '../format.ts';
@@ -34,8 +34,11 @@ export function busyRuns(bins: ForecastBin[]): { from: string; to: string; level
   }));
 }
 
-/** 가장 붐비는 단계가 이어지는 구간을 제목으로, 그보다 먼저 붐비기 시작하는 시각을 덧붙인다. */
-function headline(bins: ForecastBin[], peakT: string): { text: string; busySince: string | null } {
+/**
+ * 가장 붐비는 단계가 이어지는 구간을 제목으로, 그보다 먼저 붐비기 시작하는 시각을 덧붙인다.
+ * 대형 공연이 없는 날(usual)은 날짜 띠에 '평소 수준'으로 나오므로, 제목도 매일 반복되는 혼잡임을 밝힌다.
+ */
+function headline(bins: ForecastBin[], peakT: string, usual: boolean): { text: string; busySince: string | null } {
   const i = Math.max(0, bins.findIndex((b) => b.t === peakT));
   const peak = bins[i];
   if (RANK[peak.level] < RANK.busy) return { text: '종일 크게 붐비지 않을 것으로 보여요', busySince: null };
@@ -46,9 +49,25 @@ function headline(bins: ForecastBin[], peakT: string): { text: string; busySince
   let c = a;
   while (c > 0 && RANK[bins[c - 1].level] >= RANK.busy) c--;
   return {
-    text: `${bins[a].t}~${plus30(bins[b].t)} ${LEVEL_LABEL[peak.level]} 예상`,
+    text: `${usual ? '평소처럼 ' : ''}${bins[a].t}~${plus30(bins[b].t)} ${LEVEL_LABEL[peak.level]} 예상`,
     busySince: c < a ? bins[c].t : null,
   };
+}
+
+/**
+ * 그날 예보 한 줄: '비 예보 15~21시 · 강수확률 60%', '맑음 예보'.
+ * 실시간 카드의 '지금 날씨'와 다를 수 있어서 예보라는 것과 비·눈이 오는 시간대를 함께 적는다.
+ */
+function forecastLabel(w: DayWeather): string {
+  const kind = w.precipType ?? w.sky;
+  let text = kind ? `${kind} 예보` : '날씨 예보';
+  if (w.precipType && w.precipFrom && w.precipTo) {
+    const from = Number(w.precipFrom.slice(0, 2));
+    const to = Number(w.precipTo.slice(0, 2));
+    text += from === 0 && to === 24 ? ' 종일' : to - from <= 1 ? ` ${from}시쯤` : ` ${from}~${to}시`;
+  }
+  if (w.rainChance != null && w.rainChance >= 30) text += ` · 강수확률 ${w.rainChance}%`;
+  return text;
 }
 
 export function Diagnosis({ day, loading, isToday }: { day: DayData | null; loading: boolean; isToday: boolean }) {
@@ -60,8 +79,8 @@ export function Diagnosis({ day, loading, isToday }: { day: DayData | null; load
     );
   }
   const { bins, peak } = day.forecast;
-  const head = headline(bins, peak.t);
   const major = day.shows.filter((s) => s.major);
+  const head = headline(bins, peak.t, major.length === 0);
   const minor = day.shows.length - major.length;
   const usualRun = busyRuns(bins).find((r) => !r.event);
 
@@ -120,10 +139,7 @@ export function Diagnosis({ day, loading, isToday }: { day: DayData | null; load
         )}
         {day.weather && (
           <li className="cause">
-            <span className="cause__label">
-              {day.weather.precipType ?? day.weather.sky ?? '날씨'}
-              {day.weather.rainChance != null && day.weather.rainChance >= 30 && ` · 강수확률 ${day.weather.rainChance}%`}
-            </span>
+            <span className="cause__label">{forecastLabel(day.weather)}</span>
             <span className="cause__detail">
               최저 {day.weather.minTemp}° · 최고 {day.weather.maxTemp}°, 기상청 단기예보
             </span>

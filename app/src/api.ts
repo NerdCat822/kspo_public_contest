@@ -26,6 +26,7 @@ async function toApiError(res: Response): Promise<ApiError> {
   return new ApiError(res.status, message, code);
 }
 
+// API 주소는 앞에 / 를 붙이지 않는다. 화면이 열린 주소를 기준으로 찾아야 하위 경로(/gilmak-doctor/) 아래에서도 맞는다.
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, init);
   if (!res.ok) throw await toApiError(res);
@@ -77,7 +78,7 @@ async function agentChatStream(
   on: ChatStreamHandlers,
   signal: AbortSignal,
 ): Promise<AgentDone> {
-  const res = await fetch('/api/agent/chat/stream', {
+  const res = await fetch('api/agent/chat/stream', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, context: date ? { date } : {} }),
@@ -98,11 +99,11 @@ async function agentChatStream(
 }
 
 export const api = {
-  config: () => request<ConfigResponse>('/api/config'),
-  overview: () => request<{ days: OverviewDay[]; errors: Record<string, string> }>('/api/overview?days=14'),
-  day: (date: string) => request<WithErrors<DayResponse>>(`/api/day?date=${date}`),
-  live: () => request<LiveResponse>('/api/live'),
-  agentStatus: () => request<AgentStatus>('/api/agent/status'),
+  config: () => request<ConfigResponse>('api/config'),
+  overview: () => request<{ days: OverviewDay[]; errors: Record<string, string> }>('api/overview?days=14'),
+  day: (date: string) => request<WithErrors<DayResponse>>(`api/day?date=${date}`),
+  live: () => request<LiveResponse>('api/live'),
+  agentStatus: () => request<AgentStatus>('api/agent/status'),
   agentChatStream,
 };
 

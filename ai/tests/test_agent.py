@@ -23,13 +23,19 @@ DAY = {
     },
     "advice": {
         "concert": [{
-            "showId": "PF1-2026-11-27-19:00", "arriveBy": "15:45", "busyFrom": "16:00", "start": "19:00", "end": "21:30",
+            "showId": "PF1-2026-11-27-19:00", "arriveBy": "15:15", "busyFrom": "15:30", "start": "19:00", "end": "21:30",
             "exitRush": {"from": "21:30", "to": "22:40"}, "transitFirst": True,
         }],
         "park": {"best": [{"from": "08:00", "to": "09:30"}], "avoid": [{"from": "16:00", "to": "22:00", "reason": "event"}]},
     },
-    "weather": {"sky": "맑음", "minTemp": 2, "maxTemp": 11, "rainChance": 20, "precipType": None, "source": "kma"},
-    "model": {"version": "v0-2024-07", "fitMaeCars": 164.1, "exitMinutes": 70, "note": "", "source": "ml-service"},
+    "weather": {
+        "sky": "흐림", "minTemp": 2, "maxTemp": 11, "rainChance": 60, "precipType": "비",
+        "precipFrom": "15:00", "precipTo": "21:00", "source": "kma",
+    },
+    "model": {
+        "version": "v1-2025", "period": "2025년", "fitMaeCars": 150.0, "testMaeCars": 180.0, "testLabel": "2025년 9~12월",
+        "exitMinutes": 70, "exitShows": 30, "note": "", "source": "ml-service",
+    },
     "errors": {},
 }
 
@@ -39,7 +45,38 @@ def test_day_tool_summarizes(monkeypatch):
     text = tools.get_day_forecast.call({"date": "2026-11-27"})
     assert "06:00~07:00 여유 / 07:00~07:30 매우 붐빔" in text
     assert "대중교통 권장" in text and "출차 집중 21:30~22:40" in text
+    assert "주차장이 붐비기 시작하는 시각 15:30, 공연 3시간 전에도 이미 붐벼서 대중교통 권장, 차로 온다면 15:15 전 도착" in text
+    assert "그날 날씨 예보(기상청, 지금 날씨 아님): 비(15:00~21:00)" in text
     assert "런타임 정보 없어 추정" in text
+    assert "학습에 쓰지 않은 2025년 9~12월 공연일 평균 오차 ±180대" in text and "KSPO DOME 30회 실측" in text
+
+
+def test_live_tool_compares_with_usual(monkeypatch):
+    live = {
+        "fetchedAt": "2026-11-27 19:30",
+        "parking": {"sum": 2900, "at": "2026-11-27 19:30", "today": [], "usual": {"sum": 2050, "days": 4, "dayType": "weekday"}},
+        "road": None, "population": None, "weather": None, "controls": [], "lots": [], "stations": [], "errors": {},
+    }
+    monkeypatch.setattr(gilmak_api, "get", lambda path, **p: live)
+    text = tools.get_live_status.call({})
+    assert "평소 이 시각: 2,050대(대형 공연이 없던 최근 평일 4일 평균), 지금은 그보다 +850대" in text
+
+    live["parking"]["usual"] = None
+    assert "평소 이 시각" not in tools.get_live_status.call({})
+
+
+def test_live_tool_lists_alerts_and_news(monkeypatch):
+    live = {
+        "fetchedAt": "2026-11-29 07:10", "parking": None, "road": None, "population": None, "weather": None,
+        "controls": [], "lots": [], "stations": [], "errors": {},
+        # 항목 이름은 공개 명세에 없어서 임의의 이름으로 온다고 보고, 시각 → 구분 → 내용 순으로 잇는지 본다
+        "alerts": [{"MSG_CN": "[송파구청] 11.29(일) 08:00~12:00 마라톤 대회로 올림픽로 일부 교통통제", "CRT_DT": "2026-11-28 18:00", "EMRG_STEP_NM": "안전안내"}],
+        "news": [],
+    }
+    monkeypatch.setattr(gilmak_api, "get", lambda path, **p: live)
+    text = tools.get_live_status.call({})
+    assert "긴급재난문자(이 지역, 행정안전부):\n- 2026-11-28 18:00 / 안전안내 / [송파구청] 11.29(일) 08:00~12:00 마라톤" in text
+    assert "재난 관련 연합뉴스(이 지역): 없음" in text
 
 
 def test_day_tool_rejects_bad_date():

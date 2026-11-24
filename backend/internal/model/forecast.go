@@ -1,9 +1,10 @@
-// Package model 은 v0 예측 모델이다(analysis/build_baseline.py 가 만든 baseline.json 사용).
+// Package model 은 예측 모델이다(analysis/build_model_v1.py 가 만든 baseline.json 을 실행 파일에 넣어 쓴다).
+// Python AI 서비스가 꺼졌을 때 같은 계산을 대신한다(ai/models/baseline-v1.json 과 같은 파일).
 //
 //	수요(t) = 요일 유형별 기준선(t) + Σ 공연별 (좌석/1000) × 공연 영향 곡선(t - 시작)
 //
-// 단계는 2024년 7월 08~23시 구간 분포의 50/80/95 분위로 나눈다.
-// 단위는 동2·남2·북2문 동시 주차대수(2024년 7월 기준)이며, 화면에는 상대값과 단계만 보여 준다.
+// 단계는 학습 기간 08~23시 구간 분포의 50/80/95 분위로 나눈다.
+// 단위는 동2·남2·북2문 동시 주차대수이며, 화면에는 상대값과 단계만 보여 준다.
 package model
 
 import (
@@ -21,8 +22,12 @@ var baselineJSON []byte
 
 type baselineFile struct {
 	Meta struct {
-		Version    string   `json:"version"`
-		FitMaeCars *float64 `json:"fitMaeCars"`
+		Version     string   `json:"version"`
+		Period      string   `json:"period"`
+		FitMaeCars  *float64 `json:"fitMaeCars"`
+		TestMaeCars *float64 `json:"testMaeCars"`
+		TestLabel   *string  `json:"testLabel"`
+		Note        string   `json:"note"`
 	} `json:"meta"`
 	BinMinutes int `json:"binMinutes"`
 	Baseline   struct {
@@ -39,7 +44,9 @@ type baselineFile struct {
 		P95 float64 `json:"p95"`
 	} `json:"thresholds"`
 	ExitSurge struct {
-		Median *int `json:"medianMinutesTo80pct"`
+		Median    *int              `json:"medianMinutesTo80pct"`
+		ShowsUsed *int              `json:"showsUsed"`
+		Shows     []json.RawMessage `json:"shows"`
 	} `json:"exitSurge"`
 }
 
@@ -68,11 +75,19 @@ func ExitMinutes() int {
 }
 
 func Meta() types.ModelMeta {
+	shows := len(b.ExitSurge.Shows)
+	if b.ExitSurge.ShowsUsed != nil {
+		shows = *b.ExitSurge.ShowsUsed
+	}
 	return types.ModelMeta{
 		Version:     b.Meta.Version,
+		Period:      b.Meta.Period,
 		FitMaeCars:  b.Meta.FitMaeCars,
+		TestMaeCars: b.Meta.TestMaeCars,
+		TestLabel:   b.Meta.TestLabel,
 		ExitMinutes: ExitMinutes(),
-		Note:        "2024년 7월 동2·남2·북2문 입출차와 KOPIS 공연 일정으로 만든 초기 모델입니다. 2025년 연계 데이터로 다시 학습할 예정입니다.",
+		ExitShows:   shows,
+		Note:        b.Meta.Note,
 		Source:      "embedded",
 	}
 }
@@ -144,29 +159,37 @@ func roundDown15(min int) int { return int(math.Floor(float64(min)/15)) * 15 }
 
 // ConcertAdvice 는 공연 관람객 처방이다: 언제까지 도착하면 수월한지, 끝나고 언제 출차가 몰리는지.
 // exitMinutes 는 공연 종료 후 출차의 80%가 빠지는 데 걸리는 시간(모델 메타의 exitMinutes).
+//
+// 공연 3시간 전 ~ 30분 전에 붐비는 구간이 있으면, 그 붐빔이 실제로 시작된 시각(이어진 구간의 처음)을
+// BusyFrom 으로 삼는다. 3시간 전보다 먼저 시작됐으면 거기까지 거슬러 올라간다. 그래야 진단의
+// "붐비기 시작" 시각과 같고, 권장 도착 시각이 이미 붐비는 시간에 잡히지 않는다.
 func ConcertAdvice(show types.Show, bins []types.ForecastBin, exitMinutes int) types.ConcertAdvice {
 	start := kst.ToMinutes(show.Start)
-	var within []types.ForecastBin
-	for _, x := range bins {
+	busy := func(i int) bool { return bins[i].Level.Rank() >= types.Busy.Rank() }
+	windowStart, first := -1, -1
+	for i, x := range bins {
 		t := kst.ToMinutes(x.T)
-		if t >= start-180 && t < start-30 {
-			within = append(within, x)
+		if t < start-180 || t >= start-30 {
+			continue
 		}
-	}
-	var firstBusy *types.ForecastBin
-	for i := range within {
-		if within[i].Level.Rank() >= types.Busy.Rank() {
-			firstBusy = &within[i]
+		if windowStart < 0 {
+			windowStart = i
+		}
+		if busy(i) {
+			first = i
 			break
 		}
 	}
-	// 공연 3시간 전부터 이미 붐비면 차로 일찍 오는 것보다 대중교통이 현실적이다.
-	transitFirst := firstBusy != nil && firstBusy == &within[0]
+	// 공연 3시간 전에 이미 붐비면 차로 일찍 오는 것보다 대중교통이 현실적이다.
+	transitFirst := first >= 0 && first == windowStart
 	arriveBy := kst.HHMM(roundDown15(start - 45))
 	var busyFrom *string
-	if firstBusy != nil {
-		arriveBy = kst.HHMM(roundDown15(kst.ToMinutes(firstBusy.T) - 15))
-		busyFrom = types.Ptr(firstBusy.T)
+	if first >= 0 {
+		for first > 0 && busy(first-1) {
+			first--
+		}
+		arriveBy = kst.HHMM(roundDown15(kst.ToMinutes(bins[first].T) - 15))
+		busyFrom = types.Ptr(bins[first].T)
 	}
 	end := kst.ToMinutes(show.End)
 	return types.ConcertAdvice{

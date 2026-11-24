@@ -15,7 +15,16 @@ function parkingDelta(today: { at: string; sum: number }[], now: { at: string; s
   const diff = now.sum - best.sum;
   const when = Math.abs(best.ago - 60) <= 5 ? '1시간 전' : `${best.ago}분 전`;
   if (diff === 0) return `${when}과 같아요`;
-  return `${when}보다 ${diff > 0 ? '+' : '−'}${num(Math.abs(diff))}대`;
+  return `${when}보다 ${signed(diff)}`;
+}
+
+const signed = (diff: number) => `${diff > 0 ? '+' : '−'}${num(Math.abs(diff))}대`;
+
+/** 평소 이 시각(대형 공연이 없던 같은 유형의 날 평균)과 비교한다. 기준이 없으면 표시하지 않는다. */
+function usualDelta(p: NonNullable<LiveResponse['parking']>): string | null {
+  if (!p.usual) return null;
+  const diff = p.sum - p.usual.sum;
+  return diff === 0 ? '평소 이 시각과 같아요' : `평소 이 시각보다 ${signed(diff)}`;
 }
 
 export function LiveNow({ live }: { live: LiveResponse | null }) {
@@ -23,7 +32,7 @@ export function LiveNow({ live }: { live: LiveResponse | null }) {
   const road = live?.road;
   const pop = live?.population;
   const w = live?.weather;
-  const delta = p ? parkingDelta(p.today, p) : null;
+  const deltas = p ? [usualDelta(p), parkingDelta(p.today, p)].filter((d): d is string => d !== null) : [];
 
   return (
     <Card className="live" id="live" title="지금 올림픽공원" aside={live ? <span className="meta">{clock(live.fetchedAt)} 기준</span> : null}>
@@ -31,8 +40,12 @@ export function LiveNow({ live }: { live: LiveResponse | null }) {
         <div className="tile tile--wide">
           <p className="tile__label">실시간 주차, 동2·남2·북2문 합계</p>
           <p className="tile__value">{p ? `${num(p.sum)}대` : '–'}</p>
-          {delta && <p className="tile__delta">{delta}</p>}
-          <p className="tile__note">장기주차 차량이 포함돼 실제보다 많게 집계될 수 있어요</p>
+          {deltas.length > 0 && <p className="tile__delta">{deltas.join(' · ')}</p>}
+          <p className="tile__note">
+            {p?.usual &&
+              `평소는 대형 공연이 없던 최근 ${p.usual.dayType === 'weekday' ? '평일' : '주말·공휴일'} ${p.usual.days}일의 같은 시각 평균(${num(p.usual.sum)}대)이에요. `}
+            장기주차 차량이 포함돼 실제보다 많게 집계될 수 있어요
+          </p>
         </div>
 
         <div className="tile">
@@ -52,7 +65,7 @@ export function LiveNow({ live }: { live: LiveResponse | null }) {
         </div>
 
         <div className="tile">
-          <p className="tile__label">날씨</p>
+          <p className="tile__label">지금 날씨</p>
           <p className="tile__value">{w ? `${w.temp}°` : '–'}</p>
           {w && <p className="tile__sub">{w.precipType !== '없음' ? w.precipType : w.sky ?? '맑음'}</p>}
         </div>

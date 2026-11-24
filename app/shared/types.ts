@@ -48,7 +48,7 @@ export interface ConcertAdvice {
   showId: string;
   /** 이 시각 전에 도착하면 수월하다(transitFirst 면 그만큼 일찍 와야 한다는 뜻) */
   arriveBy: string;
-  /** 붐빔이 시작되는 시각 */
+  /** 공연 전 붐빔이 시작되는 시각. 공연 3시간 전보다 이르면 그 이른 시각이다(진단의 "붐비기 시작"과 같다) */
   busyFrom: string | null;
   start: string;
   end: string;
@@ -62,12 +62,16 @@ export interface ParkAdvice {
   avoid: (Window & { reason: 'event' | 'usual' })[];
 }
 
+/** 그날의 예보 요약(지금 날씨가 아니다. 지금 날씨는 LiveResponse.weather) */
 export interface DayWeather {
   sky: string | null;
   minTemp: number | null;
   maxTemp: number | null;
   rainChance: number | null;
   precipType: string | null;
+  /** 비·눈이 예보된 시간대 HH:MM. precipTo 는 24:00 일 수 있다 */
+  precipFrom: string | null;
+  precipTo: string | null;
   source: 'kma';
 }
 
@@ -87,8 +91,16 @@ export interface DayResponse {
   weather: DayWeather | null;
   model: {
     version: string;
+    /** 학습에 쓴 실측 기간(예: 2025년) */
+    period: string;
+    /** 학습 기간 공연일 평균 오차(대) */
     fitMaeCars: number | null;
+    /** 학습에 쓰지 않은 기간(testLabel) 공연일 평균 오차(대) */
+    testMaeCars: number | null;
+    testLabel: string | null;
+    /** 공연 종료 후 출차의 80%가 빠지는 데 걸린 시간(분, 중앙값)과 잰 공연 회차 수 */
     exitMinutes: number;
+    exitShows: number;
     note: string;
     /** ml-service(Python AI 서비스) | embedded(Go 내장 모델) */
     source: string;
@@ -181,7 +193,13 @@ export interface Control {
 
 export interface LiveResponse {
   fetchedAt: string;
-  parking: { sum: number; at: string; today: { at: string; sum: number }[] } | null;
+  parking: {
+    sum: number;
+    at: string;
+    today: { at: string; sum: number }[];
+    /** 평소 이 시각: 대형 공연이 없던 같은 유형의 날(평일끼리, 주말·공휴일끼리)에 같은 시각 평균. 비교할 날이 모자라면 null */
+    usual: { sum: number; days: number; dayType: 'weekday' | 'weekend' } | null;
+  } | null;
   population: {
     level: string;
     message: string;
@@ -208,5 +226,11 @@ export interface LiveResponse {
   lots: ParkingLot[];
   stations: Station[];
   controls: Control[];
+  /**
+   * 올림픽공원 지역의 긴급재난문자와 연합뉴스(재난 관련). 서울시 도시데이터, 5분 갱신.
+   * 공개 명세에 항목 이름이 없어 받은 이름과 값을 그대로 둔다. 화면은 쓰지 않고 상담 에이전트가 읽는다.
+   */
+  alerts: Record<string, string>[];
+  news: Record<string, string>[];
   errors: Record<string, string>;
 }

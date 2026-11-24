@@ -76,8 +76,8 @@ export function Prescription({ day, stations, purpose, onPurpose, showId, onShow
                   <>
                     <p className="step__hero">지하철을 권해요</p>
                     <p className="step__text">
-                      공연 3시간 전인 {advice.busyFrom}부터 주차장이 붐빌 것으로 보여요. 차로 온다면 <Plate size="sm">{advice.arriveBy}</Plate> 전에 도착해야
-                      여유가 있어요.
+                      주차장은 {advice.busyFrom}부터 붐비기 시작해 공연 3시간 전에는 이미 붐빌 것으로 보여요. 차로 온다면{' '}
+                      <Plate size="sm">{advice.arriveBy}</Plate> 전에 도착해야 여유가 있어요.
                     </p>
                   </>
                 ) : (
@@ -108,7 +108,8 @@ export function Prescription({ day, stations, purpose, onPurpose, showId, onShow
                   끝나자마자 나가면 정체를 피하기 어려워요. <Plate size="sm">{advice.exitRush.to}</Plate> 이후에 출발하거나 지하철을 이용하세요.
                 </p>
                 <p className="step__basis">
-                  2024년 7월 KSPO DOME 공연 7회를 실측해 보니, 종료 후 출차의 80%가 빠지기까지 {day.model.exitMinutes}분(중앙값)이 걸렸어요.
+                  {day.model.period} KSPO DOME 공연 {day.model.exitShows}회를 실측해 보니, 종료 후 출차의 80%가 빠지기까지 {day.model.exitMinutes}분(중앙값)이
+                  걸렸어요.
                   {!show.runtimeKnown && ` 이 공연은 런타임 정보가 없어 종료 시각을 시작 ${show.runtimeMin}분 뒤로 잡았어요.`}
                 </p>
               </div>

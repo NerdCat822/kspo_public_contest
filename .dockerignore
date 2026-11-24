@@ -1,0 +1,10 @@
+# 앱 이미지(Dockerfile)는 app/ 과 backend/ 만 쓴다. 키·데이터·문서는 넣지 않는다.
+*
+!app/
+!backend/
+app/node_modules
+app/dist
+backend/bin
+backend/data
+**/.env
+**/.env.*

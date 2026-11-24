@@ -101,9 +101,13 @@ def get_day_forecast(date: str) -> str:
     for a in d["advice"]["concert"]:
         show = next((s for s in d["shows"] if s["id"] == a["showId"]), None)
         name = f"「{show['name']}」 {show['hall']}" if show else a["showId"]
-        busy = f"{a['busyFrom']}부터 붐빔" if a.get("busyFrom") else "공연 전까지 크게 붐비지 않음"
-        how = "대중교통 권장(공연 3시간 전부터 이미 붐빔)" if a["transitFirst"] else f"{a['arriveBy']} 전 도착 권장"
-        lines.append(f"처방[{name} {a['start']}]: {how}, {busy}, 차로 온다면 {a['arriveBy']} 전 도착, 출차 집중 {a['exitRush']['from']}~{a['exitRush']['to']}")
+        # busyFrom 은 붐빔이 실제로 시작되는 시각이다(공연 3시간 전보다 이를 수 있다). 모델이 다른 시각으로 풀어 말하지 않게 그대로 적는다.
+        busy = f"주차장이 붐비기 시작하는 시각 {a['busyFrom']}" if a.get("busyFrom") else "공연 전까지 크게 붐비지 않음"
+        if a["transitFirst"]:
+            how = f"공연 3시간 전에도 이미 붐벼서 대중교통 권장, 차로 온다면 {a['arriveBy']} 전 도착"
+        else:
+            how = f"{a['arriveBy']} 전 도착 권장"
+        lines.append(f"처방[{name} {a['start']}]: {busy}, {how}, 출차 집중 {a['exitRush']['from']}~{a['exitRush']['to']}")
 
     park = d["advice"]["park"]
     best = ", ".join(f"{w['from']}~{w['to']}" for w in park["best"]) or "없음"
@@ -114,20 +118,48 @@ def get_day_forecast(date: str) -> str:
     if w:
         rain = f", 강수확률 {w['rainChance']:.0f}%" if w.get("rainChance") is not None else ""
         kind = w.get("precipType") or w.get("sky") or ""
-        lines.append(f"날씨(기상청): {kind} 최저 {w['minTemp']:.0f}° 최고 {w['maxTemp']:.0f}°{rain}")
+        hours = f"({w['precipFrom']}~{w['precipTo']})" if w.get("precipType") and w.get("precipFrom") and w.get("precipTo") else ""
+        lines.append(f"그날 날씨 예보(기상청, 지금 날씨 아님): {kind}{hours} 최저 {w['minTemp']:.0f}° 최고 {w['maxTemp']:.0f}°{rain}")
     m = d["model"]
-    lines.append(f"모델: {m['version']}({m.get('source', '')}), 학습 기간 공연일 평균 오차 ±{m.get('fitMaeCars') or 0:.0f}대, 공연 후 출차 80% 소요 {m['exitMinutes']}분")
+    err = (f"학습에 쓰지 않은 {m['testLabel']} 공연일 평균 오차 ±{m['testMaeCars']:.0f}대" if m.get("testMaeCars") is not None and m.get("testLabel")
+           else f"학습 기간 공연일 평균 오차 ±{m.get('fitMaeCars') or 0:.0f}대")
+    lines.append(f"모델: {m['version']}({m.get('source', '')}), {err}, 공연 후 출차 80% 소요 {m['exitMinutes']}분(KSPO DOME {m.get('exitShows', 0)}회 실측)")
     return "\n".join(lines)
+
+
+_NOTICE_ORDER = (r"DT|YMD|TM|DATE|TIME", r"TTL|TITLE|STEP|SE_NM", r".", r"CN|MSG|CONTENT")
+
+
+def _notice(n: dict[str, str]) -> str:
+    """긴급재난문자·연합뉴스 한 건. 항목 이름이 정해져 있지 않아 시각 → 제목·구분 → 기타 → 내용 순으로 값만 잇는다."""
+
+    def rank(key: str) -> int:
+        k = key.upper()
+        if re.search(_NOTICE_ORDER[0], k):
+            return 0
+        if re.search(_NOTICE_ORDER[1], k):
+            return 1
+        if re.search(_NOTICE_ORDER[3], k):
+            return 3
+        return 2
+
+    return " / ".join(v for _, v in sorted(n.items(), key=lambda kv: (rank(kv[0]), kv[0])))
 
 
 @beta_tool(eager_input_streaming=True)
 def get_live_status() -> str:
     """지금 올림픽공원의 실시간 주차대수(동2·남2·북2문 합계), 주변 도로 소통, 공원 인구 혼잡, 날씨,
-    반경 3km 공사·통제, 주변 공영주차장 면수·요금, 가까운 지하철역을 알려 준다."""
+    반경 3km 공사·통제(집회·행사 통제 포함), 이 지역 긴급재난문자와 재난 관련 연합뉴스,
+    주변 공영주차장 면수·요금, 가까운 지하철역을 알려 준다."""
     d = _fetch("/api/live")
     lines = [f"기준 시각: {d['fetchedAt']}"]
     if d.get("parking"):
-        lines.append(f"실시간 주차: {d['parking']['sum']:,}대 (장기주차 차량 포함 가능)")
+        p = d["parking"]
+        lines.append(f"실시간 주차: {p['sum']:,}대 (장기주차 차량 포함 가능)")
+        u = p.get("usual")
+        if u:
+            kind = "평일" if u["dayType"] == "weekday" else "주말·공휴일"
+            lines.append(f"평소 이 시각: {u['sum']:,}대(대형 공연이 없던 최근 {kind} {u['days']}일 평균), 지금은 그보다 {p['sum'] - u['sum']:+,}대")
     if d.get("road"):
         r = d["road"]
         lines.append(f"주변 도로: {r['level']} 평균 {r['speed']:.0f}km/h ({r['message']})")
@@ -136,7 +168,7 @@ def get_live_status() -> str:
         lines.append(f"공원 인구: {p['level']} {p['min']:,}~{p['max']:,}명")
     if d.get("weather"):
         w = d["weather"]
-        lines.append(f"날씨: {w['temp']}° {w.get('sky') or ''} 강수 {w['precipType']}")
+        lines.append(f"지금 날씨: {w['temp']}° {w.get('sky') or ''} 강수 {w['precipType']}")
     controls = d.get("controls") or []
     if controls:
         lines.append("공사·통제:")
@@ -146,6 +178,13 @@ def get_live_status() -> str:
             lines.append(f"- {c['kind']} {dist}{until}: {c['info']}")
     else:
         lines.append("공사·통제: 없음")
+    for key, name in (("alerts", "긴급재난문자(이 지역, 행정안전부)"), ("news", "재난 관련 연합뉴스(이 지역)")):
+        items = d.get(key) or []
+        if items:
+            lines.append(f"{name}:")
+            lines.extend(f"- {_notice(n)}" for n in items[:5])
+        else:
+            lines.append(f"{name}: 없음")
     lots = d.get("lots") or []
     if lots:
         lines.append("주변 공영주차장(실시간 빈자리 정보 없음): " + ", ".join(f"{l['name']} {l['capacity']:,}면" for l in lots))
