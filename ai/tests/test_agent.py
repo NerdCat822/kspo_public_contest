@@ -250,8 +250,8 @@ def test_ml_forecast_endpoint():
     ]})
     assert res.status_code == 200
     body = res.json()
-    assert body["forecasts"][0]["peak"]["level"] == "jam"
-    assert body["model"]["version"] == "v0-2024-07"
+    assert body["forecasts"][0]["peak"]["level"] in ("busy", "jam")
+    assert body["model"]["version"] == "v1-2025" and body["model"]["testLabel"]
 
 
 def test_prefetched_data_goes_before_question(monkeypatch):

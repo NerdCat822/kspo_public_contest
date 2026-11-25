@@ -23,8 +23,10 @@ func TestBigShowRaisesEvening(t *testing.T) {
 	show := types.Show{ID: "x", Start: "19:00", End: "21:30", Seats: 15000, Major: true}
 	quiet := ForecastDay(types.Weekday, nil)
 	busy := ForecastDay(types.Weekday, []types.Show{show})
-	if busy.Peak.Level != types.Jam {
-		t.Fatalf("1.5만 석 공연일 피크는 매우 붐빔이어야 함: %+v", busy.Peak)
+	// 2025년 기준(v1)으로는 평일 저녁 KSPO DOME 공연 하나면 '붐빔', 다른 공연과 겹치거나 주말이면 '매우 붐빔'까지 오른다.
+	// 공연 없는 평일도 오전이 '붐빔'이라 단계 대신 혼잡 수치(ratio)로 비교한다.
+	if busy.Peak.Level.Rank() < types.Busy.Rank() || ratioAt(busy, busy.Peak.T) <= ratioAt(quiet, quiet.Peak.T) {
+		t.Fatalf("1.5만 석 공연일 피크는 붐빔 이상이고 공연 없는 날 피크보다 붐벼야 함: %+v vs %+v", busy.Peak, quiet.Peak)
 	}
 	for i, b := range busy.Bins {
 		if b.T == "19:00" && b.Ratio <= quiet.Bins[i].Ratio {
@@ -85,6 +87,15 @@ func TestConcertAdviceBusyFromIsStartOfRun(t *testing.T) {
 	if a.BusyFrom != nil || a.ArriveBy != "18:15" || a.TransitFirst {
 		t.Fatalf("붐비지 않으면 18:15 전 도착: %+v", a)
 	}
+}
+
+func ratioAt(f DayForecast, t string) float64 {
+	for _, b := range f.Bins {
+		if b.T == t {
+			return b.Ratio
+		}
+	}
+	return 0
 }
 
 func TestMetaComesFromModelFile(t *testing.T) {

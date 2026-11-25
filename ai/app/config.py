@@ -54,7 +54,7 @@ def load_settings() -> Settings:
         llm_model=_get("LLM_MODEL", "claude-sonnet-5-5"),
         llm_effort=_get("LLM_EFFORT", "medium"),
         gilmak_api_url=_get("GILMAK_API_URL", "http://127.0.0.1:8080").rstrip("/"),
-        model_path=Path(_get("ML_MODEL_PATH", str(AI_DIR / "models" / "baseline-v0.json"))),
+        model_path=Path(_get("ML_MODEL_PATH", str(AI_DIR / "models" / "baseline-v1.json"))),
     )
 
 

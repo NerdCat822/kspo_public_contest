@@ -146,7 +146,7 @@ export default function App() {
         <div className="footer__inner">
           <p className="footer__title">데이터 출처</p>
           <ul className="footer__sources">
-            <li>한국체육산업개발 · 실시간 주차현황, 올림픽공원 입출차 정보</li>
+            <li>한국체육산업개발 · 실시간 주차현황, 올림픽공원 입출차정보(전체구역), 차량입출차·공연·날씨 연계 데이터</li>
             <li>예술경영지원센터 KOPIS · 공연 일정, 공연장 좌석</li>
             <li>서울특별시 · 실시간 도시데이터, 실시간 돌발정보</li>
             <li>출처: 기상청 · 단기예보</li>

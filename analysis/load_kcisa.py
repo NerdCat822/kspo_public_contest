@@ -26,7 +26,7 @@ CREATE SCHEMA IF NOT EXISTS gilmak;
 CREATE TABLE IF NOT EXISTS gilmak.kspo_inout_2025 (
     local_id   text PRIMARY KEY,        -- 원본 ID(B050-1872898)
     entry_gate text NOT NULL,           -- 원본 입구 이름(동2문입구#1, 북2문CMB 등)
-    entry_zone text NOT NULL,           -- 입구 문(동2문, 남2문, 북2문, 서2문, 남4문, 남3문, 서1문)
+    entry_zone text NOT NULL,           -- 입구 문(동2문, 남2문, 북2문, 서2문, 남4문, 남3문, 서1문). 문이 아니면 이름(회관 임원)
     entry_at   timestamptz NOT NULL,
     exit_gate  text,
     exit_zone  text,
@@ -54,6 +54,7 @@ COMMENT ON TABLE gilmak.kspo_linked_2025 IS '한국체육산업개발 올림픽�
 
 INOUT_RE = re.compile(r"^입구:(?P<eg>.*?), 입차시간:(?P<ea>.*?), 출구:(?P<xg>.*?), 출차시간:(?P<xa>.*)$")
 ZONE_RE = re.compile(r"^(.*?문)")
+GATE_SUFFIX_RE = re.compile(r"\s*(입구|출구)?\s*(#\d+)?\s*$")
 TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$")
 
 
@@ -68,8 +69,12 @@ def load_env(path):
 
 
 def zone(gate):
-    m = ZONE_RE.match(gate or "")
-    return m.group(1) if m else None
+    """'동2문입구#1' → '동2문'. 문 이름이 아닌 곳('회관 임원 입구', '사전정산기#19')은 입구·출구·번호만 뗀다."""
+    gate = (gate or "").strip()
+    m = ZONE_RE.match(gate)
+    if m:
+        return m.group(1)
+    return GATE_SUFFIX_RE.sub("", gate) or None
 
 
 def esc(v):

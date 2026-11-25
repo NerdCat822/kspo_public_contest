@@ -19,8 +19,8 @@
 3. 공휴일(연계 데이터의 휴일 표기)과 토·일은 '주말', 나머지는 '평일'로 묶는다(서비스와 같은 기준).
 4. 대형 공연(2,000석 이상 공연장)은 KOPIS 공연상세의 요일별 시작 시각으로 날짜별로 펼친다.
    KOPIS 에는 없는데 연계 데이터에 관람객 2,000명 이상 공연·행사가 잡힌 날은 '알 수 없는 행사일'로 보고 학습에서 뺀다.
-5. 기준선은 대형 공연과 알 수 없는 행사가 없는 날의 평균, 공연 영향 곡선은 공연일의 (실측 - 기준선)을
-   좌석 1,000석당 곡선으로 최소제곱 추정한다(2차 차분 평활).
+5. 평일 기준선은 대형 공연과 알 수 없는 행사가 없는 평일의 평균이다. 2025년은 공연 없는 주말이 며칠 안 돼서,
+   주말 기준선과 좌석 1,000석당 공연 영향 곡선은 주말 전체와 공연 있는 평일로 함께 최소제곱 추정한다(2차 차분 평활).
 6. 검증: SPLIT 이전 날짜로 학습하고 그 뒤 날짜로 08:00~23:30 구간 평균 절대 오차를 잰다(시간 분할).
    같은 날짜로 v0 모델(2024년 7월)과 '기준선만'(공연 영향 없이)도 함께 잰다.
 7. 최종 모델은 2025년 전체로 다시 학습한다. 혼잡 단계 기준은 08:00~23:30 구간 분포의 50/80/95 분위.
@@ -170,39 +170,51 @@ class Model:
 
 
 def fit(occ, days, weekend, shows, quiet):
-    """기준선(평일·주말)은 조용한 날 평균, 공연 영향 곡선은 공연일 잔차로 최소제곱."""
+    """평일 기준선은 공연·행사 없는 평일 평균으로 둔다(날이 많다).
+    2025년 주말은 대부분 대형 공연이 있어 공연 없는 주말이 며칠 안 된다. 그래서 v0 처럼 주말 기준선과
+    좌석 1,000석당 공연 영향 곡선을 공연 없는 주말 + 공연 있는 주말 + 공연 있는 평일로 함께 최소제곱 추정한다.
+        공연 없는 주말 d:  occ[d,b]               = base_we[b]
+        공연 있는 주말 d:  occ[d,b]               = base_we[b] + Σ (좌석/1000) × kernel[b - 시작구간]
+        공연 있는 평일 d:  occ[d,b] - base_wd[b]  =              Σ (좌석/1000) × kernel[b - 시작구간]
+    공연 시작 시각과 규모가 날마다 달라 두 성분을 나눌 수 있다. 둘 다 2차 차분으로 평활한다."""
     wd = [d for d in days if quiet[d] and not weekend[d]]
-    we = [d for d in days if quiet[d] and weekend[d]]
+    we_quiet = [d for d in days if quiet[d] and weekend[d]]
     base_wd = occ[wd].mean(axis=0)
-    base_we = occ[we].mean(axis=0)
     k_bins = list(range(KERNEL_FROM // BIN, KERNEL_TO // BIN + 1))
     K = len(k_bins)
+    n_var = BPD + K
     A, y = [], []
     show_days = [d for d in days if shows[d]]
-    for d in show_days:
-        base = base_we if weekend[d] else base_wd
+    rows_days = [d for d in days if weekend[d] and (quiet[d] or shows[d])] + [d for d in show_days if not weekend[d]]
+    for d in rows_days:
         for b in range(BPD):
-            row = np.zeros(K)
+            row = np.zeros(n_var)
+            if weekend[d]:
+                row[b] = 1.0
             for s in shows[d]:
                 j = b - s["startMin"] // BIN - k_bins[0]
                 if 0 <= j < K:
-                    row[j] += s["seats"] / 1000
+                    row[BPD + j] += s["seats"] / 1000
             A.append(row)
-            y.append(occ[d][b] - base[b])
-    lam = 3.0 * np.sqrt(max(1, len(show_days)) / 9)  # v0(공연일 9일)와 같은 평활 비중이 되게 날 수에 맞춘다
-    for j in range(1, K - 1):
-        row = np.zeros(K)
-        row[j - 1], row[j], row[j + 1] = lam, -2 * lam, lam
-        A.append(row)
-        y.append(0.0)
+            y.append(occ[d][b] if weekend[d] else occ[d][b] - base_wd[b])
+    lam = 3.0 * np.sqrt(max(1, len(rows_days)) / 9)  # v0(공연일 9일)와 같은 평활 비중이 되게 날 수에 맞춘다
+    for offset, size in ((0, BPD), (BPD, K)):
+        for j in range(1, size - 1):
+            row = np.zeros(n_var)
+            row[offset + j - 1], row[offset + j], row[offset + j + 1] = lam, -2 * lam, lam
+            A.append(row)
+            y.append(0.0)
     for j in (0, K - 1):  # 영향 범위 양 끝은 0
-        row = np.zeros(K)
-        row[j] = 10.0 * lam
+        row = np.zeros(n_var)
+        row[BPD + j] = 10.0 * lam
         A.append(row)
         y.append(0.0)
-    kernel, *_ = np.linalg.lstsq(np.array(A), np.array(y), rcond=None)
-    kernel = np.clip(kernel, 0, None)
-    return Model(base_wd, base_we, kernel), {"baseWeekdays": len(wd), "baseWeekendDays": len(we), "showDays": len(show_days)}
+    sol, *_ = np.linalg.lstsq(np.array(A), np.array(y), rcond=None)
+    base_we = np.clip(sol[:BPD], 0, None)
+    kernel = np.clip(sol[BPD:], 0, None)
+    stats = {"baseWeekdays": len(wd), "baseWeekendDays": len(we_quiet),
+             "weekendDaysUsed": sum(1 for d in rows_days if weekend[d]), "showDays": len(show_days)}
+    return Model(base_wd, base_we, kernel), stats
 
 
 def thresholds(occ, days):
@@ -341,6 +353,7 @@ def main():
             "missingDays": len(missing),
             "baseWeekdays": final_stats["baseWeekdays"],
             "baseWeekendDays": final_stats["baseWeekendDays"],
+            "weekendDaysUsed": final_stats["weekendDaysUsed"],
             "eventDaysUsed": final_stats["showDays"],
             "fitMaeCars": round(float(np.mean(fit_mae)), 1) if fit_mae else None,
             "testMaeCars": show_mae,

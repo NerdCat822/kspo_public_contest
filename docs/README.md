@@ -2,13 +2,13 @@
 
 ## 화면 캡처
 
-2026-11-24 22시 37분에 배포 주소(<https://hgkim-mini-pc.taild27e83.ts.net/gilmak-doctor/>)에서 실제 데이터로 찍은 화면입니다. 실시간 값(주차대수, 도로 소통, 공사·통제 등)은 찍은 시각 기준입니다.
+2026-11-25 10시 41분에 배포 주소(<https://hgkim-mini-pc.taild27e83.ts.net/gilmak-doctor/>)에서 실제 데이터로 찍은 화면입니다. 실시간 값(주차대수, 도로 소통, 공사·통제 등)은 찍은 시각 기준입니다.
 2배 해상도(데스크톱 폭 2880px, 모바일 폭 780px)라 기획서에 그대로 넣어도 됩니다.
 
 | 파일 | 화면 |
 |---|---|
-| [desktop-concert-day.png](screenshots/desktop-concert-day.png) | 데스크톱, 11월 27일(금) 공연일. KSPO DOME 19:00 공연과 올림픽홀 20:00 공연으로 18:00~21:30 매우 붐빔 예상, 15:30부터 붐비기 시작. 처방은 지하철 권장, 차로 온다면 15:15 전 도착, 22:20 이후 출차. 혼잡 요인에 "비 예보 12~15시", 공사·통제 2건이 잡힌 상태 |
-| [desktop-today.png](screenshots/desktop-today.png) | 데스크톱, 공연이 없는 평일(11월 24일). 날짜 띠는 "평소 수준", 진단은 "평소처럼 09:30~11:30 붐빔 예상". 공원 방문 처방으로 추천 시간 08:00~09:30, 11:30~20:00 |
+| [desktop-concert-day.png](screenshots/desktop-concert-day.png) | 데스크톱, 11월 27일(금) 공연일. KSPO DOME 19:00 공연과 올림픽홀 20:00 공연으로 15:30~21:00 붐빔 예상(가장 붐비는 때 17:30). 처방은 지하철 권장, 차로 온다면 15:15 전 도착, 22:50 이후 출차. 혼잡 요인에 "비 예보 11~17시"가 잡힌 상태. 예측 모델 v1-2025 |
+| [desktop-today.png](screenshots/desktop-today.png) | 데스크톱, 공연이 없는 평일(11월 25일). 날짜 띠는 "평소 수준", 진단은 "평소처럼 10:30~11:00 붐빔 예상". 공원 방문 처방으로 추천 시간 08:00~10:30, 11:00~20:00 |
 | [mobile-concert-day.png](screenshots/mobile-concert-day.png) | 모바일(폭 390px), 11월 28일(토) 공연일 전체. 고른 날짜가 날짜 띠 가운데로 온다. 소규모 공연은 접힌 상태 |
 | [mobile-concert-day-top.png](screenshots/mobile-concert-day-top.png) | 위 모바일 화면의 첫 화면만 자른 것(README용) |
 | [before-unslop-desktop.png](screenshots/before-unslop-desktop.png) | unslop으로 다듬기 전 첫 구현(비교용, 1배 해상도) |

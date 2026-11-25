@@ -1,0 +1,1036 @@
+{
+ "split": {
+  "train": "2025-01-02~2025-07-30",
+  "test": "2025-10-02~2025-12-07",
+  "trainDays": 192,
+  "testDays": 37,
+  "trainFit": {
+   "baseWeekdays": 110,
+   "baseWeekendDays": 4,
+   "weekendDaysUsed": 59,
+   "showDays": 76
+  },
+  "thresholdsTrain": [
+   1029.8,
+   1334.8,
+   1737.1
+  ],
+  "thresholdsV0": [
+   636.1,
+   856.7,
+   1009.8
+  ]
+ },
+ "data": {
+  "rows": 2411225,
+  "used": 1959647,
+  "negative": 4923,
+  "noExit": 0,
+  "longStay": 22840,
+  "otherZones": 435750,
+  "daysOk": 229,
+  "missingDays": [
+   "2025-01-01",
+   "2025-01-05",
+   "2025-01-06",
+   "2025-01-27",
+   "2025-01-28",
+   "2025-01-29",
+   "2025-01-30",
+   "2025-01-31",
+   "2025-02-01",
+   "2025-02-28",
+   "2025-03-01",
+   "2025-03-31",
+   "2025-04-01",
+   "2025-04-30",
+   "2025-05-01",
+   "2025-05-31",
+   "2025-06-01",
+   "2025-06-30",
+   "2025-07-01",
+   "2025-07-31",
+   "2025-08-01",
+   "2025-08-02",
+   "2025-08-03",
+   "2025-08-04",
+   "2025-08-05",
+   "2025-08-06",
+   "2025-08-07",
+   "2025-08-08",
+   "2025-08-09",
+   "2025-08-10",
+   "2025-08-11",
+   "2025-08-12",
+   "2025-08-13",
+   "2025-08-14",
+   "2025-08-15",
+   "2025-08-16",
+   "2025-08-17",
+   "2025-08-18",
+   "2025-08-19",
+   "2025-08-20",
+   "2025-08-21",
+   "2025-08-22",
+   "2025-08-23",
+   "2025-08-24",
+   "2025-08-25",
+   "2025-08-26",
+   "2025-08-27",
+   "2025-08-28",
+   "2025-08-29",
+   "2025-08-30",
+   "2025-08-31",
+   "2025-09-01",
+   "2025-09-02",
+   "2025-09-03",
+   "2025-09-04",
+   "2025-09-05",
+   "2025-09-06",
+   "2025-09-07",
+   "2025-09-08",
+   "2025-09-09",
+   "2025-09-10",
+   "2025-09-11",
+   "2025-09-12",
+   "2025-09-13",
+   "2025-09-14",
+   "2025-09-15",
+   "2025-09-16",
+   "2025-09-17",
+   "2025-09-18",
+   "2025-09-19",
+   "2025-09-20",
+   "2025-09-21",
+   "2025-09-22",
+   "2025-09-23",
+   "2025-09-24",
+   "2025-09-25",
+   "2025-09-26",
+   "2025-09-27",
+   "2025-09-28",
+   "2025-09-29",
+   "2025-09-30",
+   "2025-10-01",
+   "2025-10-06",
+   "2025-10-07",
+   "2025-10-08",
+   "2025-10-31",
+   "2025-11-01",
+   "2025-11-07",
+   "2025-11-08",
+   "2025-11-09",
+   "2025-11-10",
+   "2025-11-11",
+   "2025-11-12",
+   "2025-11-13",
+   "2025-11-14",
+   "2025-11-15",
+   "2025-11-16",
+   "2025-11-17",
+   "2025-11-18",
+   "2025-11-19",
+   "2025-11-20",
+   "2025-11-21",
+   "2025-11-22",
+   "2025-11-23",
+   "2025-11-24",
+   "2025-11-25",
+   "2025-11-26",
+   "2025-11-27",
+   "2025-11-28",
+   "2025-11-29",
+   "2025-11-30",
+   "2025-12-01",
+   "2025-12-08",
+   "2025-12-09",
+   "2025-12-10",
+   "2025-12-11",
+   "2025-12-12",
+   "2025-12-13",
+   "2025-12-14",
+   "2025-12-15",
+   "2025-12-16",
+   "2025-12-17",
+   "2025-12-18",
+   "2025-12-19",
+   "2025-12-20",
+   "2025-12-21",
+   "2025-12-22",
+   "2025-12-23",
+   "2025-12-24",
+   "2025-12-25",
+   "2025-12-26",
+   "2025-12-27",
+   "2025-12-28",
+   "2025-12-29",
+   "2025-12-30",
+   "2025-12-31"
+  ],
+  "medianEntries": {
+   "weekday": 9366.0,
+   "weekend": 8509.5
+  }
+ },
+ "validation": {
+  "all": {
+   "days": 37,
+   "maeV1": 242.1,
+   "maeBaseOnly": 265.2,
+   "maeV0": 447.5,
+   "levelAgreement": 0.65,
+   "levelWithinOne": 0.898
+  },
+  "show": {
+   "days": 13,
+   "maeV1": 407.6,
+   "maeBaseOnly": 473.3,
+   "maeV0": 484.6,
+   "levelAgreement": 0.479,
+   "levelWithinOne": 0.799,
+   "peakLevelMatch": 0.462,
+   "peakTimeErrorMinutesMedian": 30
+  },
+  "quiet": {
+   "days": 21,
+   "maeV1": 87.3,
+   "maeBaseOnly": 87.3,
+   "maeV0": 362.5,
+   "levelAgreement": 0.8,
+   "levelWithinOne": 1.0
+  },
+  "unknown": {
+   "days": 3,
+   "maeV1": 609.1,
+   "maeBaseOnly": 609.1,
+   "maeV0": 881.7,
+   "levelAgreement": 0.344,
+   "levelWithinOne": 0.613
+  }
+ },
+ "perDay": [
+  {
+   "date": "2025-10-02",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 39.5,
+   "maeBaseOnly": 39.5,
+   "maeV0": 335.9,
+   "levelAgreement": 0.903,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1422,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-03",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "17:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "19:30 KSPO DOME(체조경기장) 15000",
+    "14:00 올림픽홀 2452",
+    "18:30 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 133.7,
+   "maeBaseOnly": 430.8,
+   "maeV0": 339.5,
+   "levelAgreement": 0.742,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    2067,
+    "16:30"
+   ],
+   "predPeak": [
+    1807,
+    "16:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-04",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "17:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "18:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 203.7,
+   "maeBaseOnly": 149.6,
+   "maeV0": 196.8,
+   "levelAgreement": 0.516,
+   "levelWithinOne": 0.968,
+   "actualPeak": [
+    1666,
+    "16:00"
+   ],
+   "predPeak": [
+    1862,
+    "16:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-05",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "17:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "17:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 480.7,
+   "maeBaseOnly": 297.8,
+   "maeV0": 185.9,
+   "levelAgreement": 0.387,
+   "levelWithinOne": 0.71,
+   "actualPeak": [
+    1185,
+    "19:30"
+   ],
+   "predPeak": [
+    1994,
+    "16:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-09",
+   "weekend": true,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 160.6,
+   "maeBaseOnly": 160.6,
+   "maeV0": 168.9,
+   "levelAgreement": 0.806,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1304,
+    "14:30"
+   ],
+   "predPeak": [
+    1292,
+    "15:00"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-10",
+   "weekend": false,
+   "kind": "show",
+   "shows": [
+    "19:00 KSPO DOME(체조경기장) 15000",
+    "20:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003"
+   ],
+   "linkedEvents": "",
+   "maeV1": 293.6,
+   "maeBaseOnly": 133.5,
+   "maeV0": 228.5,
+   "levelAgreement": 0.419,
+   "levelWithinOne": 0.71,
+   "actualPeak": [
+    1188,
+    "11:00"
+   ],
+   "predPeak": [
+    1527,
+    "18:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-11",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "18:00 KSPO DOME(체조경기장) 15000",
+    "18:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "14:00 올림픽홀 2452",
+    "18:00 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 305.5,
+   "maeBaseOnly": 158.5,
+   "maeV0": 200.9,
+   "levelAgreement": 0.484,
+   "levelWithinOne": 0.839,
+   "actualPeak": [
+    1498,
+    "16:00"
+   ],
+   "predPeak": [
+    2007,
+    "17:00"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-12",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "17:00 KSPO DOME(체조경기장) 15000",
+    "17:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "14:00 올림픽홀 2452",
+    "18:00 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 444.9,
+   "maeBaseOnly": 183.8,
+   "maeV0": 120.7,
+   "levelAgreement": 0.387,
+   "levelWithinOne": 0.645,
+   "actualPeak": [
+    1292,
+    "16:30"
+   ],
+   "predPeak": [
+    2165,
+    "16:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-13",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 59.0,
+   "maeBaseOnly": 59.0,
+   "maeV0": 299.8,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1493,
+    "10:00"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-14",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 65.4,
+   "maeBaseOnly": 65.4,
+   "maeV0": 365.2,
+   "levelAgreement": 0.839,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1480,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-15",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 59.6,
+   "maeBaseOnly": 59.6,
+   "maeV0": 349.4,
+   "levelAgreement": 0.903,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1425,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-16",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 75.6,
+   "maeBaseOnly": 75.6,
+   "maeV0": 375.1,
+   "levelAgreement": 0.839,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1480,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-17",
+   "weekend": false,
+   "kind": "unknown",
+   "shows": [],
+   "linkedEvents": "비보쇼 with Friends",
+   "maeV1": 197.9,
+   "maeBaseOnly": 197.9,
+   "maeV0": 496.8,
+   "levelAgreement": 0.613,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1496,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-18",
+   "weekend": true,
+   "kind": "unknown",
+   "shows": [],
+   "linkedEvents": "그랜드 민트 페스티벌 2025 | 그랜드 민트 페스티벌 2025 , 비보쇼 with Friends",
+   "maeV1": 798.7,
+   "maeBaseOnly": 798.7,
+   "maeV0": 1063.1,
+   "levelAgreement": 0.194,
+   "levelWithinOne": 0.387,
+   "actualPeak": [
+    2533,
+    "16:30"
+   ],
+   "predPeak": [
+    1292,
+    "15:00"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-19",
+   "weekend": true,
+   "kind": "unknown",
+   "shows": [],
+   "linkedEvents": "그랜드 민트 페스티벌 2025 | 그랜드 민트 페스티벌 2025 , 비보쇼 with Friends",
+   "maeV1": 830.7,
+   "maeBaseOnly": 830.7,
+   "maeV0": 1085.2,
+   "levelAgreement": 0.226,
+   "levelWithinOne": 0.452,
+   "actualPeak": [
+    2879,
+    "16:00"
+   ],
+   "predPeak": [
+    1292,
+    "15:00"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-20",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 58.9,
+   "maeBaseOnly": 58.9,
+   "maeV0": 357.6,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1481,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-21",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 55.7,
+   "maeBaseOnly": 55.7,
+   "maeV0": 253.3,
+   "levelAgreement": 0.806,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1204,
+    "10:00"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-22",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 102.2,
+   "maeBaseOnly": 102.2,
+   "maeV0": 399.8,
+   "levelAgreement": 0.677,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1509,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-23",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 98.9,
+   "maeBaseOnly": 98.9,
+   "maeV0": 399.1,
+   "levelAgreement": 0.806,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1529,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-24",
+   "weekend": false,
+   "kind": "show",
+   "shows": [
+    "19:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 528.7,
+   "maeBaseOnly": 692.7,
+   "maeV0": 839.5,
+   "levelAgreement": 0.29,
+   "levelWithinOne": 0.613,
+   "actualPeak": [
+    2187,
+    "14:30"
+   ],
+   "predPeak": [
+    1408,
+    "17:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-10-25",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "18:00 KSPO DOME(체조경기장) 15000",
+    "18:00 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 472.9,
+   "maeBaseOnly": 530.5,
+   "maeV0": 612.7,
+   "levelAgreement": 0.323,
+   "levelWithinOne": 0.677,
+   "actualPeak": [
+    2175,
+    "16:00"
+   ],
+   "predPeak": [
+    1753,
+    "17:00"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-26",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "17:00 KSPO DOME(체조경기장) 15000",
+    "17:00 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 336.6,
+   "maeBaseOnly": 238.9,
+   "maeV0": 377.7,
+   "levelAgreement": 0.419,
+   "levelWithinOne": 0.774,
+   "actualPeak": [
+    1759,
+    "15:00"
+   ],
+   "predPeak": [
+    1895,
+    "16:00"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-27",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 100.1,
+   "maeBaseOnly": 100.1,
+   "maeV0": 397.9,
+   "levelAgreement": 0.806,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1551,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-28",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 103.0,
+   "maeBaseOnly": 103.0,
+   "maeV0": 402.7,
+   "levelAgreement": 0.742,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1535,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-29",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 135.5,
+   "maeBaseOnly": 135.5,
+   "maeV0": 428.1,
+   "levelAgreement": 0.613,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1555,
+    "11:00"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-10-30",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 187.5,
+   "maeBaseOnly": 187.5,
+   "maeV0": 487.7,
+   "levelAgreement": 0.452,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1576,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-11-02",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "16:00 KSPO DOME(체조경기장) 15000",
+    "17:00 올림픽홀 2452"
+   ],
+   "linkedEvents": "",
+   "maeV1": 719.9,
+   "maeBaseOnly": 979.1,
+   "maeV0": 994.4,
+   "levelAgreement": 0.516,
+   "levelWithinOne": 0.774,
+   "actualPeak": [
+    3079,
+    "15:30"
+   ],
+   "predPeak": [
+    1959,
+    "15:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-11-03",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 60.5,
+   "maeBaseOnly": 60.5,
+   "maeV0": 360.7,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1495,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-11-04",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 59.8,
+   "maeBaseOnly": 59.8,
+   "maeV0": 359.3,
+   "levelAgreement": 0.903,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1483,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-11-05",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 115.4,
+   "maeBaseOnly": 115.4,
+   "maeV0": 414.8,
+   "levelAgreement": 0.71,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1565,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-11-06",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 132.7,
+   "maeBaseOnly": 132.7,
+   "maeV0": 432.9,
+   "levelAgreement": 0.774,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1546,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-12-02",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 62.6,
+   "maeBaseOnly": 62.6,
+   "maeV0": 359.4,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1517,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-12-03",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 30.6,
+   "maeBaseOnly": 30.6,
+   "maeV0": 320.5,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1423,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-12-04",
+   "weekend": false,
+   "kind": "quiet",
+   "shows": [],
+   "linkedEvents": "",
+   "maeV1": 70.0,
+   "maeBaseOnly": 70.0,
+   "maeV0": 344.6,
+   "levelAgreement": 0.871,
+   "levelWithinOne": 1.0,
+   "actualPeak": [
+    1466,
+    "10:30"
+   ],
+   "predPeak": [
+    1358,
+    "10:30"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-12-05",
+   "weekend": false,
+   "kind": "show",
+   "shows": [
+    "20:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "20:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 588.2,
+   "maeBaseOnly": 884.5,
+   "maeV0": 836.6,
+   "levelAgreement": 0.323,
+   "levelWithinOne": 0.806,
+   "actualPeak": [
+    2776,
+    "19:30"
+   ],
+   "predPeak": [
+    1558,
+    "19:30"
+   ],
+   "peakLevelMatch": false
+  },
+  {
+   "date": "2025-12-06",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "18:00 올림픽홀 2452",
+    "18:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "18:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 405.4,
+   "maeBaseOnly": 747.3,
+   "maeV0": 719.4,
+   "levelAgreement": 0.71,
+   "levelWithinOne": 0.935,
+   "actualPeak": [
+    2702,
+    "17:30"
+   ],
+   "predPeak": [
+    1935,
+    "17:00"
+   ],
+   "peakLevelMatch": true
+  },
+  {
+   "date": "2025-12-07",
+   "weekend": true,
+   "kind": "show",
+   "shows": [
+    "16:00 올림픽홀 2452",
+    "17:00 티켓링크 라이브 아레나 (핸드볼경기장) 5003",
+    "17:00 KSPO DOME(체조경기장) 15000"
+   ],
+   "linkedEvents": "",
+   "maeV1": 384.4,
+   "maeBaseOnly": 725.3,
+   "maeV0": 646.9,
+   "levelAgreement": 0.71,
+   "levelWithinOne": 0.935,
+   "actualPeak": [
+    2897,
+    "16:00"
+   ],
+   "predPeak": [
+    2085,
+    "16:30"
+   ],
+   "peakLevelMatch": true
+  }
+ ]
+}
